@@ -81,7 +81,8 @@ const Header = () => {
                   userPreviewMainIdentifier: "font-semibold",
                 },
               }}
-              afterSwitchSessionUrl="/"
+              // afterSwitchSessionUrl="/"
+              afterSignOutUrl="/"
             />
           </SignedIn>
         </div>
