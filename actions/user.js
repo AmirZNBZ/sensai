@@ -3,15 +3,14 @@
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { generateAIInsights } from "./dashboard";
+import { revalidatePath } from "next/cache";
 
 export async function updateUser(data) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
   const user = await db.user.findUnique({
-    where: {
-      clerkUserId: userId,
-    },
+    where: { clerkUserId: userId },
   });
 
   if (!user) throw new Error("User not found");
@@ -37,6 +36,7 @@ export async function updateUser(data) {
           });
         }
 
+        // Now update the user
         const updatedUser = await tx.user.update({
           where: {
             id: user.id,
@@ -55,7 +55,8 @@ export async function updateUser(data) {
       }
     );
 
-    return { success: true, ...result };
+    revalidatePath("/");
+    return result.user;
   } catch (error) {
     console.log("Error updating user and industry", error.message);
     throw new Error("Failed to update profiled." + error.message);

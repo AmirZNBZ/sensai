@@ -18,9 +18,9 @@ export const generateAIInsights = async (industry) => {
               { "role": "string", "min": number, "max": number, "median": number, "location": "string" }
             ],
             "growthRate": number,
-            "demandLevel": "High" | "Medium" | "Low",
+            "demandLevel": "HIGH" | "MEDIUM" | "LOW",
             "topSkills": ["skill1", "skill2"],
-            "marketOutlook": "Positive" | "Neutral" | "Negative",
+            "marketOutlook": "POSITIVE" | "NEUTRAL" | "NEGATIVE",
             "keyTrends": ["trend1", "trend2"],
             "recommendedSkills": ["skill1", "skill2"]
           }
@@ -30,12 +30,13 @@ export const generateAIInsights = async (industry) => {
           Growth rate should be a percentage.
           Include at least 5 skills and trends.
         `;
-  const result = await model.generateContent(prompt);
-  response = result.response;
-  const text = response.text();
 
-  const cleanText = text.replace(/```(?:json)?\n?/g, "").trim();
-  return JSON.parse(cleanText);
+  const result = await model.generateContent(prompt);
+  const response = result.response;
+  const text = response.text();
+  const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
+
+  return JSON.parse(cleanedText);
 };
 
 export async function getIndustryInsights() {
@@ -43,13 +44,16 @@ export async function getIndustryInsights() {
   if (!userId) throw new Error("Unauthorized");
 
   const user = await db.user.findUnique({
-    where: {
-      clerkUserId: userId,
+    where: { clerkUserId: userId },
+    include: {
+      IndustryInsights: true
     },
   });
+
   if (!user) throw new Error("User not found");
 
-  if (!user.industryInsight) {
+  // If no insights exist, generate them
+  if (!user.IndustryInsights) {
     const insights = await generateAIInsights(user.industry);
 
     const industryInsight = await db.industryInsight.create({
@@ -59,8 +63,9 @@ export async function getIndustryInsights() {
         nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
     });
+
     return industryInsight;
   }
 
-  return user.industryInsight;
+  return user.IndustryInsights;
 }
