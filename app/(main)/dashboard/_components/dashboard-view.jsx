@@ -124,7 +124,7 @@ const DashboardView = ({ insights }) => {
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip
-                  content={({active, payload, label}) => {
+                  content={({ active, payload, label }) => {
                     if (active && payload && payload.length) {
                       return (
                         <div className="bg-background border rounded-lg p-2 shadow-md">
@@ -148,6 +148,38 @@ const DashboardView = ({ insights }) => {
           </div>
         </CardContent>
       </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Key Industry Trends</CardTitle>
+            <CardDescription>Current trends shaping the industry</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul>
+              {insights.keyTrends.map((trend, index) => (
+                <li key={index} className="flex items-start space-x-2">
+                  <div className="h-2 w-2 mt-2 rounded-full bg-primary" />
+                  <span>{trend}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Recommended Skills</CardTitle>
+            <CardDescription>Skills to consider developing</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {insights.recommendedSkills.map((skill, index) => (
+                <Badge key={index} variant="outline">{skill}</Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
